@@ -224,22 +224,25 @@ export function messagesReducer(
                   step.id === action.payload.stepId
                   ? {
                     ...step,
-                    params: step.params.messages.map((message) => {
-                      if (message.type !== "TEXT") {
-                        return message
-                      }
-                      return {
-                        ...message,
-                        params: {
-                          ...message.params,
-                          actions: message.params.actions!.map((act) =>
-                            act.id === action.payload.actionId
-                              ? { ...act, ...action.payload.updates }
-                              : act,
-                          ),
-                        },
-                      } as TextMessageContent
-                    }),
+                    params: {
+                      messages: step.params.messages.map((message) => {
+                        if (message.type !== "TEXT") {
+                          return message
+                        }
+                        const actions = message.params.actions ?? []
+                        return {
+                          ...message,
+                          params: {
+                            ...message.params,
+                            actions: actions.map((act) =>
+                              act.id === action.payload.actionId
+                                ? { ...act, ...action.payload.updates }
+                                : act,
+                            ),
+                          },
+                        } as TextMessageContent
+                      }),
+                    },
                   }
                   : step,
               ),

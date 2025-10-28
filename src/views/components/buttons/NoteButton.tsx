@@ -4,17 +4,14 @@ import {
   PlusIcon,
   MinusIcon,
 } from "@heroicons/react/24/outline"
-import {
-  BotMessageProps,
-  UserMessageProps,
-} from "../../../typings/legacyMessages"
 import { useOutsideClick } from "../../../hooks/useOutsideClick"
 import { noteButtonDef } from "./types"
 import { createStandaloneNote, createChildNote } from "../../../apis/zotero"
+import { States } from "../../../models/utils/states"
 
 interface NoteButtonProps extends noteButtonDef {
-  input: BotMessageProps["content"]
-  states?: UserMessageProps["states"]
+  input: unknown
+  states?: States
 }
 
 export function NoteButton({ utils, input, states }: NoteButtonProps) {

@@ -1,5 +1,18 @@
-import { StateName, States, SimplifiedStates } from '../../typings/input'
+import { StateName, States, SimplifiedStates, SelectedCreator, SelectedTag, SelectedItem, SelectedCollection, SelectedImage, StateSelection, StateSelections } from '../../typings/input'
 import { states as log } from '../../utils/loggers'
+
+export type {
+  StateName,
+  States,
+  SimplifiedStates,
+  SelectedCreator,
+  SelectedTag,
+  SelectedItem,
+  SelectedCollection,
+  SelectedImage,
+  StateSelection,
+  StateSelections,
+}
 
 export function simplifyStates(states: States): SimplifiedStates {
   const simplifiedStates = {
@@ -16,10 +29,10 @@ export function areStatesEmpty(states: States | SimplifiedStates) {
   return (
     states !== undefined &&
     (!states.items || states.items.length === 0) &&
-    (!states.collections || states.collections.length) === 0 &&
-    (!states.creators || states.creators.length) === 0 &&
-    (!states.tags || states.tags.length) === 0 &&
-    (!states.images || states.images.length) === 0
+    (!states.collections || states.collections.length === 0) &&
+    (!states.creators || states.creators.length === 0) &&
+    (!states.tags || states.tags.length === 0) &&
+    (!states.images || states.images.length === 0)
   )
 }
 
@@ -57,7 +70,7 @@ export function escapeTitle(title: string) {
   return title.replace(/[\[]/g, '<').replace(/[\]]/g, '>')
 }
 
-export const stateNames = ['creators', 'tags', 'items', 'collections'] as StateName[]
+export const stateNames = ['creators', 'tags', 'items', 'collections', 'images'] as StateName[]
 
 export const selectionConfig = {
   creators: {
@@ -114,5 +127,4 @@ export const selectionConfig = {
     borderBottom: 'solid rgb(45 212 191)', // teal-400
   },
 }
-
 

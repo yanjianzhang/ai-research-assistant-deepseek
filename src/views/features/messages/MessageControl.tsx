@@ -1,12 +1,10 @@
 import React from "react"
 import { marked } from "marked"
-import {
-  BotMessageProps,
-  UserMessageProps,
-} from "../../../typings/legacyMessages"
+import { States } from "../../../models/utils/states"
 import { CopyButton } from "../../components/buttons/CopyButton"
 import { NoteButton } from "../../components/buttons/NoteButton"
 import { AnnotateButton } from "../../components/buttons/AnnotateButton"
+import * as Markdown from "./actions/Markdown"
 
 function defaultCopy(input: any) {
   const textContent = "<pre>" + JSON.stringify(input, null, 2) + "</pre>"
@@ -17,9 +15,12 @@ function defaultCopy(input: any) {
     .copy()
 }
 
-interface MessageControlProps
-  extends Pick<BotMessageProps, "id" | "copyId" | "setCopyId" | "content"> {
-  states?: UserMessageProps["states"]
+interface MessageControlProps {
+  id: string
+  copyId?: string
+  setCopyId: (id?: string) => void
+  content: unknown
+  states?: States
 }
 
 export function MessageControl({

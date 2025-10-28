@@ -56,9 +56,36 @@ export function log(...messages: any) {
   }
 }
 
+function loadCurrentConversation(): ConversationInfo {
+  const stored = getPref("CURRENT_CONVERSATION")
+  if (typeof stored === "string" && stored.trim()) {
+    try {
+      const parsed = JSON.parse(stored) as ConversationInfo
+      if (parsed && parsed.id && parsed.metadata) {
+        return parsed
+      }
+    } catch (error) {
+      log("Failed to parse CURRENT_CONVERSATION pref", error)
+    }
+  }
+
+  const fallback: ConversationInfo = {
+    id: `conversation-${Date.now()}`,
+    title: config.addonName,
+    description: "",
+    metadata: {
+      vendor: "openai",
+      threadId: "",
+      vectorStoreId: "",
+    },
+  }
+  setPref("CURRENT_CONVERSATION", JSON.stringify(fallback))
+  return fallback
+}
+
 export function Container() {
   const [currentConversation, setCurrentConversation] = useState(
-    JSON.parse(getPref("CURRENT_CONVERSATION") as string) as ConversationInfo,
+    loadCurrentConversation(),
   )
   const zoom = useZoom()
   const { notification, hasNotification } = useNotification()
@@ -105,8 +132,12 @@ export function Container() {
   }, [])
 
   useEffect(() => {
-    assistant.setThread(currentConversation.metadata.threadId)
-    assistant.setVectorStore(currentConversation.metadata.vectorStoreId)
+    if (currentConversation.metadata.threadId) {
+      assistant.setThread(currentConversation.metadata.threadId)
+    }
+    if (currentConversation.metadata.vectorStoreId) {
+      assistant.setVectorStore(currentConversation.metadata.vectorStoreId)
+    }
   }, [currentConversation])
 
   useEffect(() => {
@@ -114,8 +145,7 @@ export function Container() {
       const stream = assistant.streamTools(functionCalls)
       clearFunctionCalls()
       addBotMessage({
-        conversationId: currentConversation.id,
-        stream: stream,
+        stream,
         steps: [],
       })
     }
@@ -409,14 +439,21 @@ export function Container() {
         {__env__ === "development" ? (
           <TestMenu
             setInput={setInput}
-            addMessage={addUserMessage}
+            addMessage={(message) => {
+              if (message.type === "USER_MESSAGE") {
+                addUserMessage({
+                  content: message.content!,
+                  states: message.states!,
+                })
+              }
+            }}
             hasNotification={hasNotification}
           />
         ) : null}
         <MainMenu
           containerRef={containerRef}
           resetMemory={assistant.resetMemory}
-          messages={messages}
+          messages={messages as any}
           clearMessages={clearMessages}
           zoom={zoom}
           hasNotification={hasNotification}

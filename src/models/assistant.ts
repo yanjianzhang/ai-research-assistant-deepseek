@@ -7,7 +7,7 @@ import { loadRetrievalQAChain } from "./chains/qa"
 import { ZoteroCallbacks, ErrorCallbacks } from "./utils/callbacks"
 import { simplifyStates, serializeStates } from "./utils/states"
 import { loadVisionChain } from "./chains/vision"
-import { getPref, setPref, clearPref } from "../utils/prefs"
+import { getPref, getLlmBaseUrl, getLlmModel } from "../utils/prefs"
 import { routingFormat } from "./schemas/routing"
 import { config } from "../../package.json"
 import { AssistantStream } from "openai/lib/AssistantStream"
@@ -54,7 +54,12 @@ export class ResearchAssistant {
     this.models = models
     this.openai = new OpenAI({
       apiKey: getPref("OPENAI_API_KEY") as string,
+      baseURL: getLlmBaseUrl(),
     })
+  }
+
+  private getDefaultModel() {
+    return this.models.default || getLlmModel()
   }
 
   setThread(threadId: string) {
@@ -73,7 +78,7 @@ export class ResearchAssistant {
     })
     const stream = this.openai.beta.threads.runs.stream(this.currentThread!, {
       assistant_id: this.assistants.routing,
-      model: this.models.default,
+      model: this.getDefaultModel(),
       // reasoning_effort: "medium",
       response_format: routingFormat,
       additional_instructions: `Today is ${new Date().toDateString()}`,
@@ -104,7 +109,7 @@ export class ResearchAssistant {
     })
     const stream = this.openai.beta.threads.runs.stream(this.currentThread!, {
       assistant_id: this.assistants.file,
-      model: this.models.default,
+      model: this.getDefaultModel(),
       // reasoning_effort: "medium",
       additional_instructions: `Today is ${new Date().toDateString()}. You should ground the question in the provided context or through file_search in user's Zotero library.`,
     })
@@ -354,11 +359,15 @@ export class ResearchAssistant {
   }
 
   async resetMemory() {
+    const threadId = this.currentThread
+    if (!threadId) {
+      throw new Error("No active thread to reset")
+    }
     const messages = await this.openai.beta.threads.messages.list(
-      this.currentThread,
+      threadId,
     )
     for (const message of messages.data) {
-      this.openai.beta.threads.messages.del(this.currentThread, message.id)
+      await this.openai.beta.threads.messages.del(threadId, message.id)
     }
   }
 

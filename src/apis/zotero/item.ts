@@ -1,6 +1,7 @@
 import { zotero as log } from "../../utils/loggers"
 import { FileForIndexing } from "../../typings/files"
 import { ItemMode, ItemInfo, AttachmentInfo } from "../../typings/zotero"
+export type { ItemInfo } from "../../typings/zotero"
 
 export function compileItemInfo(item: Zotero.Item, mode: ItemMode): ItemInfo {
   let itemInfo: ItemInfo = {
@@ -156,4 +157,3 @@ export async function getItemById(id: number) {
   const item = await Zotero.Items.getAsync(id)
   return compileItemInfo(item, 'search')
 }
-

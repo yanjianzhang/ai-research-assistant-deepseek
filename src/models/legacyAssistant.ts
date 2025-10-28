@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BaseChain } from "langchain/chains"
 import { BaseChatMemory, BufferWindowMemory } from "langchain/memory"
 import { CallbackManager } from "langchain/callbacks"

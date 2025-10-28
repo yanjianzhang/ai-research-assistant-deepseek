@@ -17,9 +17,15 @@ export class ZoteroCollection extends Tool {
         WHERE c.collectionID=?
         GROUP BY c.collectionID
       `.trim()
-      const results = await Zotero.DB.queryAsync(sql, [`${input}`])
-      let output = []
-      for (let row of results) {
+      const results = (await Zotero.DB.queryAsync(sql, [`${input}`])) || []
+      const output: Array<{
+        id: number
+        name: string
+        parent: number | null
+        library: number
+        itemCount: number
+      }> = []
+      for (const row of results as any[]) {
         output.push({
           id: row.collectionID,
           name: row.collectionName,

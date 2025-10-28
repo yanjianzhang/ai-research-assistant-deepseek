@@ -81,7 +81,14 @@ export function SearchResultsWidget({
     messageId,
     searchResultsStepId,
   ) as SearchActionStepContent
-  const output = searchResultsBotStep.params.action.output
+  const output = searchResultsBotStep?.params.action.output
+  if (!searchResultsBotStep || !output) {
+    return (
+      <div className="text-base">
+        <div className="dot-flashing"></div>
+      </div>
+    )
+  }
   log({ output })
 
   return (

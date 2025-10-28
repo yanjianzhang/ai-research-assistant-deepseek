@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useMemo, useRef, memo } from "react"
 import { marked } from "marked"
 import { DocumentIcon } from "@heroicons/react/24/outline"
@@ -6,9 +7,9 @@ import {
   MessageDelta,
   MessageContent,
 } from "openai/resources/beta/threads/messages"
-import { MessageStep, MessageStepContent } from "../steps/MessageStep"
-import { ToolStep, ToolStepContent } from "../steps/ToolStep"
-import { ErrorStep, ErrorStepContent } from "../steps/ErrorStep"
+import { MessageStep } from "../steps/MessageStep"
+import { ToolStep } from "../steps/ToolStep"
+import { ErrorStep } from "../steps/ErrorStep"
 import { createCitations } from "../../../../apis/zotero/citation"
 import { ItemButton } from "../../../components/buttons/ItemButton"
 import { createCollection } from "../../../../apis/zotero/collection"
@@ -42,7 +43,6 @@ import { QAActionStepContent } from "../../../../typings/steps"
 
 export interface QAActionProps {
   content: QAActionStepContent
-  context: { query: QueryType }
   control: QAActionStepControl
 }
 

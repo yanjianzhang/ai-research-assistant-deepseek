@@ -3,7 +3,15 @@ import { RoutingOutput } from "../models/schemas/routing"
 import { Text } from "openai/resources/beta/threads/messages"
 import { serializeError } from "serialize-error"
 import { useMessages } from "../hooks/useMessages"
-import type { ActionType, FileActionType, SearchActionType, QAActionType, RetryActionType } from "./actions"
+import type {
+  ActionType,
+  FileActionType,
+  SearchActionType,
+  QAActionType,
+  RetryActionType,
+  BaseActionStepControl,
+  ErrorActionStepControl,
+} from "./actions"
 import { SearchWorkflowType, QAWorkflowType } from "./workflows"
 import { FileAction } from "../views/features/messages/actions/FileAction"
 import { SearchAction } from "../views/features/messages/actions/SearchAction"
@@ -25,6 +33,7 @@ export interface TextMessageContent {
     message?: RoutingOutput["message"]
     context?: RoutingOutput["context"]
     workflows?: ActionType[]
+    actions?: ActionType[]
   }
 }
 
@@ -75,6 +84,8 @@ export interface QAWorkflowStepContent extends BaseStepContent {
     workflow: QAWorkflowType
     context: RoutingOutput["context"],
     searchResultsStepId?: string
+    searchResultsCount?: number
+    indexed?: boolean
   }
 }
 
@@ -138,9 +149,8 @@ interface BaseStepControl {
   resumeScroll: () => void
 }
 
-export interface MessageStepControl extends BaseStepControl {
+export interface MessageStepControl extends BaseActionStepControl {
   getBotStep: ReturnType<typeof useMessages>["getBotStep"]
-  updateBotAction: ReturnType<typeof useMessages>["updateBotAction"]
 }
 
 export interface ToolStepControl extends BaseStepControl {
@@ -148,18 +158,20 @@ export interface ToolStepControl extends BaseStepControl {
   updateBotStep: ReturnType<typeof useMessages>["updateBotStep"]
 }
 
-export interface ActionStepControl extends BaseStepControl {
+export interface ActionStepControl extends BaseActionStepControl {
   addUserMessage: ReturnType<typeof useMessages>["addUserMessage"]
   addBotMessage: ReturnType<typeof useMessages>["addBotMessage"]
-  addBotStep: ReturnType<typeof useMessages>["addBotStep"]
-  updateBotAction: ReturnType<typeof useMessages>["updateBotAction"]
-}
-
-export interface WorkflowStepControl extends BaseStepControl {
   getBotStep: ReturnType<typeof useMessages>["getBotStep"]
   addBotStep: ReturnType<typeof useMessages>["addBotStep"]
   updateBotStep: ReturnType<typeof useMessages>["updateBotStep"]
-  updateBotAction: ReturnType<typeof useMessages>["updateBotAction"]
+  completeBotMessageStep: ReturnType<typeof useMessages>["completeBotMessageStep"]
+  addFunctionCallOutput: (tool_call_id: string, output: string) => void
 }
 
-export type ErrorStepControl = BaseStepControl
+export interface WorkflowStepControl extends BaseActionStepControl {
+  getBotStep: ReturnType<typeof useMessages>["getBotStep"]
+  addBotStep: ReturnType<typeof useMessages>["addBotStep"]
+  updateBotStep: ReturnType<typeof useMessages>["updateBotStep"]
+}
+
+export type ErrorStepControl = ErrorActionStepControl

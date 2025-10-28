@@ -22,11 +22,13 @@ export class ZoteroCreators extends Tool {
         ORDER BY val
         LIMIT 10
       `.trim()
-      const results = await Zotero.DB.queryAsync(sql, [`${input}`])
+      const results = (await Zotero.DB.queryAsync(sql, [`${input}`])) || []
       // Unpack the iterator array
-      let output: string[] = []
-      for (let row of results) {
-        output.push(row.val)
+      const output: string[] = []
+      for (const row of results as any[]) {
+        if (row && typeof row.val === 'string') {
+          output.push(row.val)
+        }
       }
       return output.join('\n')
     } catch (error) {

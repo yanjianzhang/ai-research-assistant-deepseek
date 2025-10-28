@@ -73,7 +73,7 @@ export function SelectionIcon({
 }: {
   name: StateName
   id?: number
-  type?: _ZoteroTypes.Item.ItemType | "collection" | "creator" | "tag" | "image"
+  type?: string
 }) {
   switch (name) {
     case "items": {

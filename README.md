@@ -62,7 +62,9 @@ For a detailed walkthrough of the installation process, please check out: https:
 
 By default, Aria can be activated by clicking the ![Aria launch button](addon/chrome/content/icons/favicon@16x16.png) button on Zoterol toolbar or through the "Shift + R" shortcut.
 
-Before using Aria, you need to provide an [OpenAI API Key](https://platform.openai.com/account/api-keys). Follow the in-app instruction to add a key and <b>restart Zotero</b>. ([screenshots](docs/configuration.md))
+Before using Aria, you need to provide an API key that is compatible with the OpenAI APIs (for example, an [OpenAI API Key](https://platform.openai.com/account/api-keys) or a [DeepSeek API key](https://platform.deepseek.com/)). Follow the in-app instruction to add a key and <b>restart Zotero</b>. ([screenshots](docs/configuration.md))
+
+To call the DeepSeek API, set the API base URL to `https://api.deepseek.com/v1` and enter the desired model ID (for example, `deepseek-chat`) in the Model ID field under Preferences ▸ Aria.
 
 After restart, you should see the activated Aria window (as shown above) and can start using it through conversations.
 
@@ -71,7 +73,7 @@ After restart, you should see the activated Aria window (as shown above) and can
 
 Aria is configurable through Edit > Preferences > Aria. Please note that some changes require Zotero restart.
 
-- __Model Selection__: Choose between the base GPT-4 model and the new GPT-4 Turbo model (Preview).
+- __Model ID__: Provide any model identifier supported by your provider (e.g., `gpt-4o`, `gpt-4o-mini`, `deepseek-chat`).
 - __Zoom Level__: Adjust the zoom level to fit your screen resolution 
 - __Keyboard shortcut__: Change the keyboard shortcut combination to better fit your workflow.
 
@@ -106,5 +108,3 @@ Refer to the [Zotero Plugin Development](https://www.zotero.org/support/dev/clie
 You can now submit feedback and share your chat session to help improve Aria. Let's make Aria better together!
 
 ![Visual Analysis](assets/videos/feedback.gif)
-
-

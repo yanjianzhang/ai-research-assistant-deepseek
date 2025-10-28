@@ -1,10 +1,10 @@
 export class SQLiteCache {
   db: any
   constructor() {
-    const { FileUtils } = Components.utils.import('resource://gre/modules/FileUtils.jsm')
+    const { FileUtils } = (Components.utils as any).import('resource://gre/modules/FileUtils.jsm')
     const dbFile = FileUtils.getFile('ProfD', ['aria', 'db.sqlite'])
     // Open the SQLite database
-    const storageService = Components.classes['@mozilla.org/storage/service;1'].getService(
+    const storageService = ((Components.classes as any)['@mozilla.org/storage/service;1']).getService(
       Components.interfaces.mozIStorageService
     )
     this.db = storageService.openDatabase(dbFile)

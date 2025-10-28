@@ -23,11 +23,13 @@ export function QAWorkflow({
       if (!content.params.searchResultsStepId) {
         addBotStep(content.messageId, {
           type: "ACTION_STEP",
+          status: "IN_PROGRESS",
           params: {
             action: {
               type: "search",
               mode: content.params.workflow.input.fulltext ? "fulltext" : "qa",
             },
+            context: content.params.context,
             workflow: {
               type: "qa",
               messageId: content.messageId,
@@ -39,6 +41,7 @@ export function QAWorkflow({
         if (content.params.searchResultsCount === 0) {
           addBotStep(content.messageId, {
             type: "ACTION_STEP",
+            status: "IN_PROGRESS",
             params: {
               action: {
                 type: "retry",
@@ -47,8 +50,9 @@ export function QAWorkflow({
                   prompt:
                     "The search query didn't return any results. Please revise and try again.",
                 },
+                output: undefined,
               },
-              // context: content.params.context,
+              context: content.params.context,
               workflow: {
                 type: "qa",
                 messageId: content.messageId,
@@ -60,6 +64,7 @@ export function QAWorkflow({
           if (!content.params.indexed) {
             addBotStep(content.messageId, {
               type: "ACTION_STEP",
+              status: "IN_PROGRESS",
               params: {
                 action: {
                   type: "file",
@@ -67,7 +72,9 @@ export function QAWorkflow({
                     // files: searchResults.results,
                     searchResultsStepId: content.params.searchResultsStepId,
                   },
+                  output: undefined,
                 },
+                context: content.params.context,
                 workflow: {
                   type: "qa",
                   messageId: content.messageId,
@@ -78,6 +85,7 @@ export function QAWorkflow({
           } else {
             addBotStep(content.messageId, {
               type: "ACTION_STEP",
+              status: "IN_PROGRESS",
               params: {
                 action: {
                   type: "qa",
@@ -85,7 +93,9 @@ export function QAWorkflow({
                     question: content.params.workflow.input.question,
                     fulltext: content.params.workflow.input.fulltext,
                   },
+                  output: undefined,
                 },
+                context: content.params.context,
                 workflow: {
                   type: "qa",
                   messageId: content.messageId,

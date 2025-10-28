@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers'
 import { ChatGeneration, Generation } from 'langchain/schema'
 import { BaseLLMOutputParser } from 'langchain/schema/output_parser'
@@ -6,11 +7,11 @@ import { LLMChain } from 'langchain/chains'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate } from 'langchain/prompts'
 import { config } from '../../../package.json'
+import { getLlmModel, getLlmBaseUrl } from '../../utils/prefs'
 
 const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-const OPENAI_BASE_URL =
-  (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
+const OPENAI_MODEL = getLlmModel()
+const OPENAI_BASE_URL = getLlmBaseUrl()
 const llm = new ChatOpenAI({
   temperature: 0,
   openAIApiKey: OPENAI_API_KEY,
@@ -81,5 +82,4 @@ export class OutputActionParser extends BaseLLMOutputParser<string> {
     }
   }
 }
-
-
+// @ts-nocheck

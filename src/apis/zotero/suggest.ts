@@ -1,13 +1,15 @@
 // Implementation: https://github.com/zotero/zotero/blob/fe752fd9375e0d12f9a5ad751abf7b738c870e53/components/zotero-autocomplete.js
 // Example: https://github.com/zotero/zotero/blob/fe752fd9375e0d12f9a5ad751abf7b738c870e53/chrome/content/zotero/containers/tagsBoxContainer.jsx#L66
-const { classes: Cc, interfaces: Ci } = Components
+const { classes: Cc, interfaces: Ci } = Components as any
 
 export type FieldName = 'tag' | 'creator' | 'title' | 'collection'
 
 // The field name must match FieldName. Otherwise, the function will fail silently.
 export async function suggest(qtext: string, fieldName: FieldName) {
   let i = 0
-  const search = Cc['@mozilla.org/autocomplete/search;1?name=zotero'].createInstance(Ci.nsIAutoCompleteSearch)
+  const search = (Cc['@mozilla.org/autocomplete/search;1?name=zotero'] as any).createInstance(
+    Ci.nsIAutoCompleteSearch,
+  )
   return new Promise(function (resolve, reject) {
     if (!['tag', 'creator', 'title', 'collection'].includes(fieldName)) {
       reject(new Error(`Invalid field name: ${fieldName}`))
@@ -89,9 +91,9 @@ export async function suggestCollections({ qtext, limit = 10 }: SuggestCollectio
         LIMIT ?2
       `.trim()
   const query = '%' + qtext.split(' ').join('%') + '%'
-  const results = await Zotero.DB.queryAsync(sql, [query, limit])
-  const output = []
-  for (let row of results) {
+  const results = (await Zotero.DB.queryAsync(sql, [query, limit])) || []
+  const output: Array<{ id: number; title: string; itemCount: number }> = []
+  for (const row of results as any[]) {
     output.push({
       id: row.collectionID,
       title: row.collectionName,
@@ -102,8 +104,8 @@ export async function suggestCollections({ qtext, limit = 10 }: SuggestCollectio
 }
 
 async function runSuggestQuery(sql: string, params: any[]) {
-  const results = (await Zotero.DB.queryAsync(sql, params)) as { name: string }[] || []
-  const output = []
+  const results = ((await Zotero.DB.queryAsync(sql, params)) as { name: string }[]) || []
+  const output: string[] = []
   for (const row of results) {
     output.push(row.name)
   }

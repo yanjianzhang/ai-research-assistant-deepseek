@@ -11,6 +11,7 @@ import { Control } from "../../../components/types"
 import { CodeHighlighter } from "../../../components/code/CodeHighlighter"
 import stringify from "json-stringify-pretty-compact"
 import { ErrorActionStepControl } from "../../../../typings/actions"
+import { getLlmModel, getLlmProviderName } from "../../../../utils/prefs"
 
 interface ContainerProps {
   error: Error
@@ -65,8 +66,9 @@ export interface ErrorActionProps {
 
 export function ErrorAction({ content: { error }, control }: ErrorActionProps) {
   const { scrollToEnd } = control
-  const OPENAI_MODEL =
-    (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || "gpt-4o"
+  const model = getLlmModel()
+  const providerName = getLlmProviderName()
+  const isOpenAI = providerName === "OpenAI"
 
   useEffect(() => {
     scrollToEnd()
@@ -96,22 +98,24 @@ export function ErrorAction({ content: { error }, control }: ErrorActionProps) {
           <ErrorActionContainer error={error}>
             <div>
               <h4 className="pb-2">
-                You exceeded your current quota with OpenAI APIs.
+                You exceeded your current quota with {providerName} APIs.
               </h4>
               <p>
-                Your request has been rejected by OpenAI due to insufficient
-                quota.
+                Your request has been rejected by {providerName}
+                {isOpenAI ? " due to insufficient quota." : "."}
               </p>
-              <p>
-                Please check out this{" "}
-                <Link
-                  url={
-                    "https://help.openai.com/en/articles/6891831-error-code-429-you-exceeded-your-current-quota-please-check-your-plan-and-billing-details"
-                  }
-                  text="OpenAI support article"
-                />{" "}
-                for more details.
-              </p>
+              {isOpenAI ? (
+                <p>
+                  Please check out this{" "}
+                  <Link
+                    url={
+                      "https://help.openai.com/en/articles/6891831-error-code-429-you-exceeded-your-current-quota-please-check-your-plan-and-billing-details"
+                    }
+                    text="OpenAI support article"
+                  />{" "}
+                  for more details.
+                </p>
+              ) : null}
             </div>
           </ErrorActionContainer>
         )
@@ -125,7 +129,7 @@ export function ErrorAction({ content: { error }, control }: ErrorActionProps) {
           <ErrorActionContainer error={error}>
             <div>
               <h4 className="pb-2">
-                Valid OpenAI API key is required to use Aria
+                Valid {providerName} API key is required to use Aria
               </h4>
               <ul className="list-none p-0">
                 <li>
@@ -137,7 +141,7 @@ export function ErrorAction({ content: { error }, control }: ErrorActionProps) {
                   <strong>Aria</strong>.
                 </li>
                 <li>
-                  Locate the <strong>OpenAI API key</strong> field and enter
+                  Locate the <strong>{providerName} API key</strong> field and enter
                   your API key in the text box.
                 </li>
                 <li>
@@ -150,24 +154,27 @@ export function ErrorAction({ content: { error }, control }: ErrorActionProps) {
         )
       }
       case "model_not_found": {
-        const supportArticleUrl =
-          "https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4"
+        const supportArticleUrl = isOpenAI
+          ? "https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4"
+          : undefined
         return (
           <ErrorActionContainer error={error}>
             <div>
-              <h4 className="pb-2">Model '{OPENAI_MODEL}' is not available</h4>
+              <h4 className="pb-2">Model '{model}' is not available</h4>
               <ul className="list-none p-0">
-                <li>{`The model '${OPENAI_MODEL}' does not exist or you do not have access to it.`}</li>
-                <li>
-                  Learn more:{" "}
-                  <button
-                    className="inline p-0 whitespace-nowrap border-none text-tomato bg-transparent hover:underline"
-                    onClick={() => Zotero.launchURL(supportArticleUrl)}
-                  >
-                    {supportArticleUrl}
-                  </button>
-                  .
-                </li>
+                <li>{`The model '${model}' does not exist or you do not have access to it.`}</li>
+                {supportArticleUrl ? (
+                  <li>
+                    Learn more:{" "}
+                    <button
+                      className="inline p-0 whitespace-nowrap border-none text-tomato bg-transparent hover:underline"
+                      onClick={() => Zotero.launchURL(supportArticleUrl)}
+                    >
+                      {supportArticleUrl}
+                    </button>
+                    .
+                  </li>
+                ) : null}
               </ul>
             </div>
           </ErrorActionContainer>
@@ -215,7 +222,7 @@ export function ErrorAction({ content: { error }, control }: ErrorActionProps) {
   )
 }
 
-export function compileContent({ input: { error } }: ErrorActionProps) {
+export function compileContent({ content: { error } }: ErrorActionProps) {
   const textContent =
     "<pre>" + JSON.stringify(serializeError(error), null, 2) + "</pre>"
   const htmlContent = marked(textContent)

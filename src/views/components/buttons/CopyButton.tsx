@@ -1,14 +1,13 @@
 import React from "react"
 import { marked } from "marked"
-import { BotMessageProps } from "../../../typings/legacyMessages"
 import { Square2StackIcon } from "@heroicons/react/24/outline"
 import { copyButtonDef } from "./types"
 
 interface CopyButtonProps extends copyButtonDef {
-  copyId: BotMessageProps["copyId"]
-  setCopyId: BotMessageProps["setCopyId"]
-  id: BotMessageProps["id"]
-  input: BotMessageProps["content"]
+  copyId?: string
+  setCopyId: (id?: string) => void
+  id: string
+  input: unknown
 }
 
 export function CopyButton({

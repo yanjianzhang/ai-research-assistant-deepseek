@@ -12,9 +12,6 @@ declare global {
   type ZToolkit = import("../settings/addon").CustomToolkit
   const ztoolkit: ZToolkit
   const rootURI: string
-  const addon: import("../settings/addon").default
+  const addon: import("../settings/addon").Addon
 }
-
-import type { nsXPCComponents_Classes as _nsXPCComponents_Classes } from "zotero-types/types/gecko/lib.gecko.tweaks"
-
-export type nsXPCComponents_Classes = _nsXPCComponents_Classes
+export type nsXPCComponents_Classes = any

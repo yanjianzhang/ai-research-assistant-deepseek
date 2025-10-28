@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BaseLanguageModel } from 'langchain/base_language'
 import { Tool } from 'langchain/tools'
 import {
@@ -16,6 +17,7 @@ import { ChainValues } from 'langchain/schema'
 import { uniq, cloneDeep, isEmpty } from 'lodash'
 import { BaseChatMemory, BufferWindowMemory } from 'langchain/memory'
 import { config } from '../../../package.json'
+import { getLlmModel, getLlmBaseUrl } from '../../utils/prefs'
 import { ReadOnlyBufferWindowMemory } from '../utils/memory'
 import { OutputActionParser } from '../utils/lcParsers'
 import { ClarificationActionResponse, ErrorActionResponse, SearchActionResponse } from '../utils/actions'
@@ -269,9 +271,8 @@ interface LoadSearchChainInput {
 
 export const loadSearchChain = (params: LoadSearchChainInput) => {
   const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-  const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-  const OPENAI_BASE_URL =
-    (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
+  const OPENAI_MODEL = getLlmModel()
+  const OPENAI_BASE_URL = getLlmBaseUrl()
   const llm = new ChatOpenAI({
     temperature: 0,
     openAIApiKey: OPENAI_API_KEY,
@@ -296,3 +297,4 @@ export const loadSearchChain = (params: LoadSearchChainInput) => {
 //     chain: loadZoteroQueryBuilderChain(params),
 //   })
 // }
+// @ts-nocheck

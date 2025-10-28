@@ -24,7 +24,9 @@ export default function globalConfig() {
     })
   }
 
-  if (!basicTool.getGlobal("Zotero")[config.addonInstance]) {
+  const zoteroGlobal = basicTool.getGlobal("Zotero") as any
+
+  if (!zoteroGlobal[config.addonInstance]) {
     // Set global variables
     // _globalThis.Zotero = basicTool.getGlobal('Zotero')
     // _globalThis.console = basicTool.getGlobal('Zotero').getMainWindow().console
@@ -51,7 +53,7 @@ export default function globalConfig() {
     // addon.hooks.onStartup()
 
     defineGlobal("console", () => {
-      const window = basicTool.getGlobal("Zotero").getMainWindow() as any
+      const window = zoteroGlobal.getMainWindow() as any
       return window.console
     })
     defineGlobal("window")
@@ -67,6 +69,6 @@ export default function globalConfig() {
     defineGlobal("ztoolkit", () => {
       return _globalThis.addon.data.ztoolkit
     })
-    Zotero[config.addonInstance] = addon
+    zoteroGlobal[config.addonInstance] = _globalThis.addon
   }
 }

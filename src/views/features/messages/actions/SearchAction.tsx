@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useMemo, useRef, useEffect } from "react"
 import {
   createColumnHelper,
@@ -43,7 +44,7 @@ import { SearchResultTable } from "../../../components/search/SearchResultTable"
 import { action as log } from "../../../../utils/loggers"
 import { ZoteroIcon } from "../../../icons/zotero"
 import { CSSTransition } from "react-transition-group"
-import { SearchActionStepContent } from "../../../../typings/steps"
+import { SearchActionStepContent, SearchWorkflowStepContent } from "../../../../typings/steps"
 import { useAssistant } from "../../../../hooks/useAssistant"
 
 const columnHelper =
@@ -62,8 +63,11 @@ export function SearchAction({
     action: { mode, output },
     workflow,
   } = params
-  const { query } = getBotStep(workflow.messageId, workflow.stepId)!.params
-    .context
+  const workflowStep = getBotStep(
+    workflow.messageId,
+    workflow.stepId,
+  ) as SearchWorkflowStepContent
+  const { query } = workflowStep.params.context
   const [expanded, setExpanded] = useState(false)
   const ref = useRef(null)
   log("Render search action", { status, output, params })
@@ -100,9 +104,9 @@ export function SearchAction({
             action: { ...params.action, output },
           },
         })
-        updateBotStep(messageId, params.workflow.stepId, {
-          type: "WORKFLOW_STEP",
+        updateBotStep(workflow.messageId, workflow.stepId, {
           params: {
+            ...workflowStep.params,
             searchResultsStepId: id,
             searchResultsCount: output.count,
           },

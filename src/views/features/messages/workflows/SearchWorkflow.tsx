@@ -21,11 +21,13 @@ export function SearchWorkflow({
     async function invokeSearchAction() {
       await addBotStep(content.messageId, {
         type: "ACTION_STEP",
+        status: "IN_PROGRESS",
         params: {
           action: {
             type: "search",
             mode: "search",
           },
+          context: content.params.context,
           workflow: {
             type: "search",
             messageId: content.messageId,

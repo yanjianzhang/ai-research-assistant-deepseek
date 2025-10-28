@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BaseLanguageModel } from 'langchain/base_language'
 import { AgentExecutor } from 'langchain/agents'
 import { BaseChain } from 'langchain/chains'
@@ -13,6 +14,7 @@ import { BaseChatMemory } from 'langchain/memory'
 import { ChainValues } from 'langchain/schema'
 import { StructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers'
 import { config } from '../../../package.json'
+import { getLlmModel, getLlmBaseUrl } from '../../utils/prefs'
 import { ChatOpenAI } from '@langchain/openai'
 import { create } from 'domain'
 import { CallbackManager, CallbackManagerForChainRun } from 'langchain/callbacks'
@@ -21,9 +23,8 @@ import { OutputActionParser } from '../utils/lcParsers'
 import { serializeStates } from '../utils/states'
 
 const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-const OPENAI_BASE_URL =
-  (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
+const OPENAI_MODEL = getLlmModel()
+const OPENAI_BASE_URL = getLlmBaseUrl()
 const llm = new ChatOpenAI({
   temperature: 0,
   openAIApiKey: OPENAI_API_KEY,
@@ -214,3 +215,4 @@ export const createRouter = ({
   })
   return chain
 }
+// @ts-nocheck

@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, memo } from "react"
 import {
-  HandThumbUpIcon as HandThumbUpIconOutline,
-  HandThumbDownIcon as HandThumbDownIconOutline,
-} from "@heroicons/react/24/outline"
-import {
-  HandThumbUpIcon as HandThumbUpIconSolid,
-  HandThumbDownIcon as HandThumbDownIconSolid,
-  StopIcon,
-} from "@heroicons/react/24/solid"
-import {
   Text,
   Message as OpenAIMessage,
   MessageDelta,
@@ -100,10 +91,6 @@ export const BotMessage = memo(function BotMessageContent({
   // const [vote, setVote] = useState(message.vote)
   const currentStepIdRef = useRef<string | undefined>()
   const toolCallCountRef = useRef(0)
-  const [error, setError] = useState(false)
-  const [text, setText] = useState("")
-  const [messageId, setMessageId] = useState<string>()
-  const [messageTimestamp, setMessageTimestamp] = useState<string>()
   const ref = useRef<HTMLDivElement>(null)
   // const [steps, setSteps] = useState<StepInput[]>(message.steps || [])
   const [unresponsive, setUnresponsive] = useState(false)
@@ -130,7 +117,9 @@ export const BotMessage = memo(function BotMessageContent({
         log("Bot message created", id)
         const stepId = await addBotStep(id, {
           type: "MESSAGE_STEP",
-          params: [],
+          params: {
+            messages: [],
+          },
           status: "IN_PROGRESS",
         } as Omit<MessageStepContent, "id" | "messageId" | "timestamp">)
         currentStepIdRef.current = stepId
@@ -308,78 +297,6 @@ export const BotMessage = memo(function BotMessageContent({
     return () => clearTimeout(timer)
   }, [steps])
 
-  function saveMessageStep(stepContent: any) {
-    console.log({ stepContent })
-    const { stream, messageSlice, ...messageContent } = message
-    editMessage({
-      ...messageContent,
-      status: "done",
-      steps: [stepContent],
-    })
-  }
-
-  function handleVote(vote: "up" | "down") {
-    const { id, timestamp } = message
-    const serializedMessages = JSON.stringify(
-      messageSlice.map((message) => {
-        const input = (message as BotMessageProps).content
-
-        if (message.type === "BOT_MESSAGE" && message.error) {
-          if (message.error.stack && typeof message.error.stack === "string") {
-            message.error.stack = anonymizeError(message.error.stack)
-          }
-        }
-        let purgedStates
-        if (
-          message.type === "USER_MESSAGE" &&
-          message.states.images.length > 0
-        ) {
-          const states = (message as UserMessageProps).states
-          purgedStates = {
-            ...states,
-            images: states.images.map(({ image, ...rest }) => ({
-              ...rest,
-              image: image.slice(0, 64) + "...",
-            })),
-          }
-        }
-        return {
-          id: message.id,
-          timestamp: message.timestamp,
-          type: message.type,
-          content: (message as UserMessageProps).content,
-          states: purgedStates,
-          input,
-        }
-      }),
-    )
-
-    submitFeedback(
-      {
-        id,
-        timestamp,
-        vote,
-        user: null,
-        messages: serializedMessages,
-        env: __env__,
-      },
-      (vote: "up" | "down") =>
-        editMessage({
-          ...message,
-          type: "BOT_MESSAGE",
-          vote,
-        }),
-      (success: boolean) => {
-        if (success) {
-          setVote(vote)
-          setError(false)
-        } else {
-          setError(true)
-        }
-      },
-    )
-  }
-
   function stopResponding() {
     stream?.abort()
   }
@@ -422,6 +339,8 @@ export const BotMessage = memo(function BotMessageContent({
       getBotStep,
       addBotStep,
       updateBotStep,
+      updateBotAction,
+      completeBotMessageStep,
       addFunctionCallOutput,
     }),
     [
@@ -433,6 +352,8 @@ export const BotMessage = memo(function BotMessageContent({
       getBotStep,
       addBotStep,
       updateBotStep,
+      updateBotAction,
+      completeBotMessageStep,
       addFunctionCallOutput,
     ],
   )
@@ -445,7 +366,7 @@ export const BotMessage = memo(function BotMessageContent({
       getBotStep,
       addBotStep,
       updateBotStep,
-      addFunctionCallOutput,
+      updateBotAction,
     }),
     [
       scrollToEnd,
@@ -454,7 +375,7 @@ export const BotMessage = memo(function BotMessageContent({
       getBotStep,
       addBotStep,
       updateBotStep,
-      addFunctionCallOutput,
+      updateBotAction,
     ],
   )
 
@@ -463,8 +384,9 @@ export const BotMessage = memo(function BotMessageContent({
       scrollToEnd,
       pauseScroll,
       resumeScroll,
+      updateBotAction,
     }),
-    [scrollToEnd, pauseScroll, resumeScroll],
+    [scrollToEnd, pauseScroll, resumeScroll, updateBotAction],
   )
 
   if (steps.length === 0) {
@@ -509,62 +431,7 @@ export const BotMessage = memo(function BotMessageContent({
                       />
                     </div>
                   ) : (
-                    <>
-                      {/* <div className="flex-none flex space-x-2">
-                        <MessageControl
-                          {...message}
-                          copyId={copyId}
-                          setCopyId={setCopyId}
-                          states={states}
-                        />
-                      </div> */}
-                      <div className="flex-auto"></div>
-                      <div className="flex-none flex flex-col">
-                        {/* <div className="self-end">
-                          <button
-                            type="button"
-                            className="relative inline-flex items-center bg-white hover:bg-gray-200 focus:z-10 border-none px-2 py-1"
-                            aria-label="ThumbUp"
-                            onClick={() => handleVote("up")}
-                          >
-                            {vote === "up" ? (
-                              <HandThumbUpIconSolid
-                                className="w-5 h-5 text-tomato"
-                                aria-hidden="true"
-                              />
-                            ) : (
-                              <HandThumbUpIconOutline
-                                className="w-5 h-5 text-neutral-500"
-                                aria-hidden="true"
-                              />
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            className="relative inline-flex items-center bg-white hover:bg-gray-200 focus:z-10 border-none px-2 py-1"
-                            aria-label="ThumbDown"
-                            onClick={() => handleVote("down")}
-                          >
-                            {vote === "down" ? (
-                              <HandThumbDownIconSolid
-                                className="w-5 h-5 text-tomato"
-                                aria-hidden="true"
-                              />
-                            ) : (
-                              <HandThumbDownIconOutline
-                                className="w-5 h-5 text-neutral-500"
-                                aria-hidden="true"
-                              />
-                            )}
-                          </button>
-                        </div> */}
-                        {error ? (
-                          <div className="text-xs text-red-500">
-                            Failed to submit feedback
-                          </div>
-                        ) : null}
-                      </div>
-                    </>
+                    <div className="flex-auto"></div>
                   )}
                 </div>
               </div>

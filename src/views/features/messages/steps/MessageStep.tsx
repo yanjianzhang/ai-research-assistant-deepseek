@@ -6,14 +6,9 @@ import {
 import { Message as OpenAIMessage } from "openai/resources/beta/threads/messages"
 import MarkdownReact from "marked-react"
 import { parsePartialJson } from "../../../../utils/parsers"
-import { Control } from "../../../components/types"
 import { customMarkdownRenderer } from "../../../utils/markdown"
 import { CodeHighlighter } from "../../../components/code/CodeHighlighter"
 import stringify from "json-stringify-pretty-compact"
-import * as Markdown from "../actions/Markdown"
-import { SearchAction } from "../actions/SearchAction"
-import { QAAction, QAActionContent } from "../actions/QAAction"
-import { ErrorAction } from "../actions/ErrorAction"
 import { step as log } from "../../../../utils/loggers"
 import { ActionType } from "../../../../typings/actions"
 import { TextMessageContent } from "../../../../typings/steps"
@@ -26,7 +21,7 @@ export interface MessageStepProps {
 
 export function MessageStep({
   content: { id, messageId, status, params },
-  control: { updateBotAction, ...restControl },
+  control,
 }: MessageStepProps) {
   log("Render message step", { id, messageId, status, params })
   // Ref to store the last successfully parsed values for each item in the array
@@ -87,13 +82,17 @@ export function MessageStep({
             switch (item.params.widget) {
               case "search": {
                 return (
-                  // <CodeHighlighter
-                  //   code={stringify(item.params)}
-                  //   language="json"
-                  // />
                   <SearchResultsWidget
-                    content={{ messageId, ...item }}
-                    control={restControl}
+                    content={{
+                      id,
+                      messageId,
+                      status,
+                      params: {
+                        widget: "search" as const,
+                        message: item.params.message,
+                      },
+                    }}
+                    control={control}
                   />
                 )
               }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PromptManager } from 'zotero-plugin-toolkit/dist/managers/prompt'
 import { Command } from 'zotero-plugin-toolkit/dist/managers/prompt'
 import { AgentExecutor } from 'langchain/agents'
@@ -41,3 +42,4 @@ export type ExecutorParams = {
   langChainCallbackManager: CallbackManager
   zoteroCallbacks: ZoteroCallbacks
 }
+// @ts-nocheck

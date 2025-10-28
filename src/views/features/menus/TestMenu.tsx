@@ -219,9 +219,15 @@ const testMessages = [
   },
 ]
 
+interface SimpleUserMessage {
+  type: "USER_MESSAGE"
+  content: MentionValue
+  states: States
+}
+
 interface TestMenuProps {
   setInput: (input: { userInput: UserInput; id?: string }) => void
-  addMessage: (message: Partial<Message>) => void
+  addMessage: (message: SimpleUserMessage) => void
   hasNotification?: boolean
 }
 
@@ -236,7 +242,9 @@ export function TestMenu({
       type: "BUTTON" as const,
       label,
       handleClick: () => {
-        addMessage(message)
+        if (message.type === "USER_MESSAGE") {
+          addMessage(message)
+        }
         if (message.type === "USER_MESSAGE") {
           setInput({
             userInput: { content: message.content, states: message.states },

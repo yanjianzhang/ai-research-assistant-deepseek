@@ -4,17 +4,14 @@ import {
   PlusIcon,
   MinusIcon,
 } from "@heroicons/react/24/outline"
-import {
-  BotMessageProps,
-  UserMessageProps,
-} from "../../../typings/legacyMessages"
 import { useOutsideClick } from "../../../hooks/useOutsideClick"
 import { annotationButtonDef } from "./types"
 import { updateAnnotation } from "../../../apis/zotero"
+import { States } from "../../../models/utils/states"
 
 interface AnnotateButtonProps extends annotationButtonDef {
-  input: BotMessageProps["content"]
-  states?: UserMessageProps["states"]
+  input: unknown
+  states?: States
 }
 
 export function AnnotateButton({ utils, input, states }: AnnotateButtonProps) {

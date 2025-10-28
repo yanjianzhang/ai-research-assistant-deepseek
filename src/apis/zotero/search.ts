@@ -6,8 +6,8 @@ import { ItemMode, ItemInfo } from "../../typings/zotero"
 import { QueryType } from "../../typings/actions"
 
 export interface SearchCondition {
-  condition: Zotero.Search.Conditions
-  operator: Zotero.Search.Operator
+  condition: string
+  operator: string
   value?: string
 }
 
@@ -26,8 +26,8 @@ export function createSearchInstance({
   // searchSubcollections = false,
   // showOnlyTopLevelItems = false,
   // includeParentAndChildItems = false,
-}: SearchParameters): Zotero.Search {
-  const search = new Zotero.Search()
+}: SearchParameters) {
+  const search = new (Zotero as any).Search()
 
   // Set the join mode based on the 'match' parameter
   search.addCondition("joinMode", match)

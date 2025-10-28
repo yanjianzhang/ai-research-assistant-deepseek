@@ -5,15 +5,19 @@ import type { recursiveSearchAndCompileResults } from "../apis/zotero/search"
 
 export type ActionStatus = "IN_PROGRESS" | "COMPLETED"
 
-export type SearchActionType = z.infer<typeof SearchWorkflowSchema> & {
-  mode: "search" | "qa" | "fulltext"
-  output: Awaited<ReturnType<typeof recursiveSearchAndCompileResults>>
+interface ActionBase {
+  id?: string
 }
 
-export type QAActionType = z.infer<typeof QAWorkflowSchema> & {
+export type SearchActionType = (z.infer<typeof SearchWorkflowSchema> & {
+  mode: "search" | "qa" | "fulltext"
+  output?: Awaited<ReturnType<typeof recursiveSearchAndCompileResults>>
+}) & ActionBase
+
+export type QAActionType = (z.infer<typeof QAWorkflowSchema> & {
   input: any
-  output: any
-}
+  output?: any
+}) & ActionBase
 
 export type RetryActionType = {
   type: "retry"
@@ -21,22 +25,26 @@ export type RetryActionType = {
     message: string
     prompt: string
   }
-  output: any
-}
+  output?: any
+} & ActionBase
 
 export type FileActionType = {
   type: "file"
   input: {
     searchResultsStepId: string
   }
-  output: any
-}
+  output?: any
+} & ActionBase
 
-export type ActionType = SearchActionType | QAActionType | RetryActionType
+export type ActionType =
+  | SearchActionType
+  | QAActionType
+  | RetryActionType
+  | FileActionType
 
 export type QueryType = NonNullable<z.infer<typeof QuerySchema>>
 
-interface BaseActionStepControl {
+export interface BaseActionStepControl {
   scrollToEnd: () => void
   pauseScroll: () => void
   resumeScroll: () => void

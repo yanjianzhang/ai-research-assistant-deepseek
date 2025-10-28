@@ -35,7 +35,7 @@ export function Component({
   )
 }
 
-export function compileContent({ input: { content: textContent } }: Props) {
+export function compileContent({ content: { text: textContent } }: Props) {
   const htmlContent = marked(textContent)
   return { textContent, htmlContent }
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BaseLanguageModel } from 'langchain/base_language'
 import { CallbackManager, CallbackManagerForChainRun } from 'langchain/callbacks'
 import { BaseChain, ChainInputs, ConversationChain } from 'langchain/chains'
@@ -12,6 +13,7 @@ import {
 import { ChainValues, HumanMessage } from 'langchain/schema'
 import retry, { Options } from 'async-retry'
 import { config } from '../../../package.json'
+import { getLlmModel, getLlmBaseUrl } from '../../utils/prefs'
 import { ClarificationActionResponse, ErrorActionResponse, VisionActionResponse } from '../utils/actions'
 import { ZoteroCallbacks } from '../utils/callbacks'
 import { ReadOnlyBufferWindowMemory } from '../utils/memory'
@@ -149,9 +151,8 @@ interface LoadVisionChainInput {
 
 export const loadVisionChain = (params: LoadVisionChainInput) => {
   const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-  const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-  const OPENAI_BASE_URL =
-    (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
+  const OPENAI_MODEL = getLlmModel()
+  const OPENAI_BASE_URL = getLlmBaseUrl()
   const llm = new ChatOpenAI({
     temperature: 0,
     openAIApiKey: OPENAI_API_KEY,

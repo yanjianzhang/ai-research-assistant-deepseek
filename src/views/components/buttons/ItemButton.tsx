@@ -3,8 +3,10 @@ import { ItemIcon } from "../../icons/zotero"
 import { ItemInfo, AttachmentInfo } from "../../../typings/zotero"
 import { useDialog } from "../../../hooks/useDialog"
 
+type MinimalItem = Pick<ItemInfo, "id" | "type"> | Pick<AttachmentInfo, "id" | "type">
+
 interface ItemButtonProps {
-  item: Pick<ItemInfo, "id" | "type"> | Pick<AttachmentInfo, "id" | "type">
+  item: MinimalItem
   mode: "item" | "attachment"
   text?: string
 }
@@ -15,7 +17,7 @@ export function ItemButton({ item, mode, text }: ItemButtonProps) {
 
   function openItem(
     event: React.MouseEvent<HTMLAnchorElement>,
-    item: ItemInfo | AttachmentInfo,
+    item: MinimalItem,
     ref: React.RefObject<HTMLAnchorElement>,
     dialog: ReturnType<typeof useDialog>,
     mode: "item" | "attachment",
@@ -42,7 +44,7 @@ export function ItemButton({ item, mode, text }: ItemButtonProps) {
       href="#"
       onClick={(event) => openItem(event, item, ref, dialog, mode)}
     >
-      {text ? text : <ItemIcon type={item.type} />}
+      {text ? text : <ItemIcon type={item.type as any} />}
     </a>
   )
 }
